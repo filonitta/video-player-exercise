@@ -27,13 +27,30 @@ class Video extends React.Component {
 		autoPlay: false,
 	};
 
+	state = {
+		isLoaded: false
+	}
+
+	loadedData = () => {
+		this.setState({ isLoaded: true });
+	}
+
 	render() {
 		let {
 			classes
 		} = this.props;
 
+		let {
+			isLoaded
+		} = this.state;
+
 		return <div className={classes.root}>
-			<video className={classes.video} {...this.props} ></video>
+			<video
+				hidden={!isLoaded}
+				className={classes.video}
+				{...this.props}
+				onLoadedData={this.loadedData}
+			></video>
 		</div>
 	}
 }
