@@ -7,6 +7,12 @@ import api from '@/services/api.class';
 import Video from './../shared/Video';
 
 const styles = {
+	button: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		transform: 'translate(-50%, -50%)'
+	}
 };
 
 class Home extends React.Component {
@@ -29,10 +35,14 @@ class Home extends React.Component {
 	}
 
 	render() {
-		return <div className="container">
-			<h1>A simple Video component example</h1>
+		const {
+			classes
+		} = this.props;
 
-			<Button variant="contained" color="primary" onClick={this.fetchData}>Get the video</Button>
+		return <div className="container">
+			{/*<h1>A simple Video component example</h1>*/}
+
+			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="primary" onClick={this.fetchData}>Get the video</Button>}
 			{this.state.videoFile && <Video src={this.state.videoFile} />}
 		</div>;
 	}
