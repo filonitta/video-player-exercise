@@ -50,7 +50,7 @@ class Video extends React.Component {
 				className={classes.video}
 				{...this.props}
 				onLoadedData={this.loadedData}
-				poster="/assets/images/video-file.png"
+				poster="/assets/images/no-video.jpg"
 			></video>
 		</div>
 	}
