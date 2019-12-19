@@ -18,7 +18,8 @@
     "http-server": "http-server ./build --gzip --proxy http://localhost:8080 -o",
     "build": "webpack --config webpack.prod.config.js --color",
     "lint": "eslint src/**/*.js src/**/*.jsx",
-    "test": "jest --color"
+    "test": "jest --color",
+    "mock:api": "json-server --watch api/db.json --port 4000"
   },
   "husky": {
     "hooks": {
