@@ -25,12 +25,12 @@ class Home extends React.Component {
 	}
 
 	componentDidMount() {
-	}
-
-	fetchData = () => {
 		api.getVideo().then(response => {
 			this.setState({ videoFile: response.url });
 		});
+	}
+
+	fetchData = () => {
 
 	}
 
@@ -42,7 +42,7 @@ class Home extends React.Component {
 		return <div className="container">
 			{/*<h1>A simple Video component example</h1>*/}
 
-			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="primary" onClick={this.fetchData}>Get the video</Button>}
+			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData}>Upload the video</Button>}
 			{this.state.videoFile && <Video src={this.state.videoFile} />}
 		</div>;
 	}
