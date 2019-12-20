@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
+
 import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import GetAppIcon from '@material-ui/icons/GetApp';
+
+import { setVideo } from '@redux/actions/index';
 
 const styles = theme => ({
 	root: {
@@ -80,28 +84,36 @@ const styles = theme => ({
 	}
 });
 
-class Video extends React.Component {
+class ConnectedVideo extends React.Component {
 	static propTypes = {
 		controls: PropTypes.bool,
 		autoPlay: PropTypes.bool,
-		src: PropTypes.string,
+		src: PropTypes.string.isRequired,
 		classes: PropTypes.any,
+
+		isLoaded: PropTypes.bool,
+		progress: PropTypes.number,
+		buffered: PropTypes.number,
+		isPlaying: PropTypes.bool,
+		totalTime: PropTypes.string,
+		currentTime: PropTypes.string,
+		setData: PropTypes.func.isRequired,
 	};
 
 	static defaultProps = {
 		src: null,
 		controls: true,
 		autoPlay: false,
-	};
 
-	videoElement = null;
-
-	state = {
 		isLoaded: false,
 		progress: 0,
 		buffered: 0,
-		isPlaying: false
-	}
+		isPlaying: false,
+		totalTime: '',
+		currentTime: '',
+	};
+
+	videoElement = null;
 
 	_format = format => time => {
 		let m = parseInt(parseInt(time / 60));
@@ -111,7 +123,15 @@ class Video extends React.Component {
 	}
 
 	loadedData = () => {
-		this.setState({
+		/*this.setState({
+			isLoaded: true,
+			totalTime: this._format('mm:ss')(this.videoElement.duration),
+			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
+		});*/
+
+		let { setData } = this.props;
+
+		setData({
 			isLoaded: true,
 			totalTime: this._format('mm:ss')(this.videoElement.duration),
 			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
@@ -119,7 +139,9 @@ class Video extends React.Component {
 	}
 
 	timeupdate = () => {
-		this.setState({
+		let { setData } = this.props;
+
+		setData({
 			progress: this.videoElement.currentTime * 100 / this.videoElement.duration,
 			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
 		});
@@ -128,7 +150,13 @@ class Video extends React.Component {
 	playpause = () => {
 		this.videoElement.paused ? this.videoElement.play() : this.videoElement.pause();
 
-		this.setState({
+		/*this.setState({
+			isPlaying: !this.videoElement.paused
+		});*/
+
+		let { setData } = this.props;
+
+		setData({
 			isPlaying: !this.videoElement.paused
 		});
 	}
@@ -137,7 +165,12 @@ class Video extends React.Component {
 		if (!this.videoElement.buffered.length) return;
 
 		let loadedPercentage = 100 * this.videoElement.buffered.end(0) / this.videoElement.duration;
-		this.setState({ buffered: loadedPercentage});
+
+		// this.setState({ buffered: loadedPercentage });
+
+		store.dispatch( setVideo({
+			buffered: loadedPercentage
+		}) );
 	}
 
 	download = () => {
@@ -157,7 +190,8 @@ class Video extends React.Component {
 	render() {
 		let {
 			classes,
-			controls
+			controls,
+			src
 		} = this.props;
 
 		let {
@@ -166,12 +200,16 @@ class Video extends React.Component {
 			currentTime,
 			progress,
 			buffered,
-		} = this.state;
+			isPlaying
+		} = this.props;
 
-		return <div className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}>
+		// console.log('this.props', this.props);
+		console.log('store', store.getState());
+
+		return <div className={classnames(classes.root, isPlaying ? 'playing' : '')}>
 			<video
 				hidden={!isLoaded}
-				{...this.props}
+				src={src}
 				controls={false}
 				className={classes.video}
 				poster="/assets/images/no-video.jpg"
@@ -211,4 +249,25 @@ class Video extends React.Component {
 	}
 }
 
-export default withStyles(styles)(Video);
+const mapStateToProps = state => {
+	let { video } = state;
+
+	return {
+		isLoaded: video.isLoaded,
+		progress: video.progress,
+		buffered: video.buffered,
+		isPlaying: video.isPlaying,
+		totalTime: video.totalTime,
+		currentTime: video.currentTime,
+	};
+};
+
+let mapDispatchToProps = dispatch => ({
+	setData(data) {
+		dispatch(setVideo(data));
+	}
+});
+
+const Video = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ConnectedVideo));
+
+export default Video;
