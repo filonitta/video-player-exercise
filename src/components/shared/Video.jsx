@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
@@ -8,12 +9,21 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 
 const styles = theme => ({
 	root: {
-		position: 'relative'
+		position: 'relative',
+		boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.3)',
+		overflow: 'hidden',
+		'&.playing > $controls': {
+			bottom: '-100px'
+		},
+		'&:hover > $controls': {
+			bottom: 0
+		}
 	},
 	video: {
 		maxWidth: '100%',
 		height: 'auto',
 		verticalAlign: 'middle',
+		overflow: 'hidden',
 		'&:focus': {
 			outline: 'none'
 		}
@@ -22,8 +32,9 @@ const styles = theme => ({
 		width: '100%',
 		position: 'absolute',
 		bottom: 0,
-		padding: '10px',
-		background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.2) 100%)',
+		padding: '30px 10px 10px',
+		background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.7) 100%)',
+		transition: 'bottom 0.5s ease-out 0.5s'
 	},
 	progressBar: {
 		marginTop: '5px',
@@ -46,7 +57,7 @@ const styles = theme => ({
 	bufferedLine: {
 		display: 'block',
 		height: '3px',
-		background: theme.palette.grey[400],
+		background: theme.palette.grey[500],
 		transition: 'width 0.3s',
 		width: 0,
 		position: 'absolute',
@@ -65,7 +76,7 @@ const styles = theme => ({
 	timer: {
 		marginLeft: '5px',
 		fontSize: '12px',
-		color: '#fff'
+		// color: theme.palette.grey[700],
 	}
 });
 
@@ -89,6 +100,7 @@ class Video extends React.Component {
 		isLoaded: false,
 		progress: 0,
 		buffered: 0,
+		isPlaying: false
 	}
 
 	_format = format => time => {
@@ -115,6 +127,10 @@ class Video extends React.Component {
 
 	playpause = () => {
 		this.videoElement.paused ? this.videoElement.play() : this.videoElement.pause();
+
+		this.setState({
+			isPlaying: !this.videoElement.paused
+		});
 	}
 
 	progress = () => {
@@ -132,6 +148,12 @@ class Video extends React.Component {
 		link.click();
 	}
 
+	changeCurrentTime = event => {
+		let shift = event.clientX - this.videoElement.parentNode.offsetLeft - this.progressBar.offsetLeft;
+		let width = this.progressBar.offsetWidth;
+		this.videoElement.currentTime = shift * this.videoElement.duration / width;
+	}
+
 	render() {
 		let {
 			classes,
@@ -141,10 +163,12 @@ class Video extends React.Component {
 		let {
 			isLoaded,
 			totalTime,
-			currentTime
+			currentTime,
+			progress,
+			buffered,
 		} = this.state;
 
-		return <div className={classes.root}>
+		return <div className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}>
 			<video
 				hidden={!isLoaded}
 				{...this.props}
@@ -155,10 +179,11 @@ class Video extends React.Component {
 				onLoadedData={this.loadedData}
 				onProgress={this.progress}
 				onTimeUpdate={this.timeupdate}
+				onKeyUp={() => this.videoElement ? this.videoElement.onkeyup : () => {}}
 			></video>
 
 			{isLoaded && controls &&
-			<div className={classes.controls}>
+			<div className={classnames(classes.controls)}>
 				<div className={classes.heading}>
 					<div className={classes.flexContainer}>
 						<IconButton aria-label="play" onClick={this.playpause} color="secondary">
@@ -176,9 +201,9 @@ class Video extends React.Component {
 					</div>
 				</div>
 
-				<div className={classes.progressBar}>
-					<div className={classes.progressLine} style={{ width: `${this.state.progress}%` }}></div>
-					<div className={classes.bufferedLine} style={{ width: `${this.state.buffered}%` }}></div>
+				<div className={classes.progressBar} ref={el => this.progressBar = el} onClick={this.changeCurrentTime}>
+					<div className={classes.progressLine} style={{ width: `${progress}%` }}></div>
+					<div className={classes.bufferedLine} style={{ width: `${buffered}%` }}></div>
 				</div>
 			</div>
 			}
