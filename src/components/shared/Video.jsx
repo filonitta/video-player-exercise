@@ -123,18 +123,12 @@ class ConnectedVideo extends React.Component {
 	}
 
 	loadedData = () => {
-		/*this.setState({
-			isLoaded: true,
-			totalTime: this._format('mm:ss')(this.videoElement.duration),
-			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
-		});*/
-
 		let { setData } = this.props;
 
 		setData({
 			isLoaded: true,
 			totalTime: this._format('mm:ss')(this.videoElement.duration),
-			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
+			currentTime: this._format('mm:ss')(this.videoElement.currentTime),
 		});
 	}
 
@@ -165,8 +159,6 @@ class ConnectedVideo extends React.Component {
 		if (!this.videoElement.buffered.length) return;
 
 		let loadedPercentage = 100 * this.videoElement.buffered.end(0) / this.videoElement.duration;
-
-		// this.setState({ buffered: loadedPercentage });
 
 		store.dispatch( setVideo({
 			buffered: loadedPercentage
@@ -204,7 +196,7 @@ class ConnectedVideo extends React.Component {
 		} = this.props;
 
 		// console.log('this.props', this.props);
-		console.log('store', store.getState());
+		// console.log('isPlaying', isPlaying);
 
 		return <div className={classnames(classes.root, isPlaying ? 'playing' : '')}>
 			<video
@@ -250,15 +242,16 @@ class ConnectedVideo extends React.Component {
 }
 
 const mapStateToProps = state => {
-	let { video } = state;
+	// let { video } = state;
 
+	// console.log('video', video);
 	return {
-		isLoaded: video.isLoaded,
-		progress: video.progress,
-		buffered: video.buffered,
-		isPlaying: video.isPlaying,
-		totalTime: video.totalTime,
-		currentTime: video.currentTime,
+		...state,
+		// progress: state.progress,
+		// buffered: state.buffered,
+		// isPlaying: state.isPlaying,
+		// totalTime: state.totalTime,
+		// currentTime: state.currentTime,
 	};
 };
 
