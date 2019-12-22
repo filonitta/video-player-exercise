@@ -5,7 +5,9 @@ import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '@/services/api.class';
+import Notification from './../shared/Notification';
 import Video from './../shared/Video';
+import { addNotification } from '@redux/actions/index';
 
 const styles = {
 	button: {
@@ -16,9 +18,6 @@ const styles = {
 	},
 	spinner: {
 		position: 'absolute',
-		right: '5px',
-		marginLeft: '5px',
-		width: '15px',
 	}
 };
 
@@ -33,15 +32,21 @@ class Home extends React.Component {
 	}
 
 	componentDidMount() {
+
 	}
 
 	fetchData = () => {
 		this.setState({ loading: true });
+
 		api.getVideo().then(response => {
-			this.setState({
-				videoFile: response.url,
-				loading: false
-			});
+			this.setState({ videoFile: response.url });
+		}).catch(() => {
+			store.dispatch(addNotification({
+				type: 'error',
+				message: 'Some error occured'
+			}));
+		}).finally(() => {
+			this.setState({ loading: false });
 		});
 
 	}
@@ -56,11 +61,13 @@ class Home extends React.Component {
 		} = this.state;
 
 		return <div className="container">
-			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData}>
+			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData} disabled={loading}>
 				Upload the video
-				{loading && <CircularProgress color="inherit" size="20" className={classes.spinner} />}
+				{loading && <CircularProgress color="secondary" size={25} className={classes.spinner} />}
 			</Button>}
 			{this.state.videoFile && <Video src={this.state.videoFile} />}
+
+			<Notification />
 		</div>;
 	}
 }
