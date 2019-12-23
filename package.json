@@ -37,6 +37,7 @@
     "leaflet": "^1.4.0",
     "material-ui-pickers": "^2.2.4",
     "material-ui-rating": "^3.0.1",
+    "material-ui-slider": "^3.0.8",
     "moment": "^2.24.0",
     "normalize.css": "^8.0.1",
     "pdfmake": "^0.1.56",
