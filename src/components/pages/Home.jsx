@@ -2,16 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import api from '@/services/api.class';
+import Notification from './../shared/Notification';
 import Video from './../shared/Video';
+import { addNotification } from '@redux/actions/index';
 
 const styles = {
 	button: {
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
-		transform: 'translate(-50%, -50%)'
+		transform: 'translate(-50%, -50%)',
+		zIndex: 9
+	},
+	spinner: {
+		position: 'absolute',
 	}
 };
 
@@ -21,29 +28,48 @@ class Home extends React.Component {
 	};
 
 	state = {
-		videoFile: null
-	}
-
-	componentDidMount() {
+		videoFile: null,
+		loading: false
 	}
 
 	fetchData = () => {
-		api.getVideo().then(response => {
+		this.setState({ loading: true });
+
+		if (this.state.loading) return;
+
+		let method = Math.random() > 0.5 ? api.getVideo() : api.getVideo2();
+
+		method.then(response => {
 			this.setState({ videoFile: response.url });
+		}).catch(() => {
+			store.dispatch(addNotification({
+				type: 'error',
+				message: 'Some error occured'
+			}));
+		}).finally(() => {
+			this.setState({ loading: false });
 		});
 
 	}
 
 	render() {
 		const {
-			classes
+			classes,
 		} = this.props;
 
-		return <div className="container">
-			{/*<h1>A simple Video component example</h1>*/}
+		const {
+			loading,
+			videoFile,
+		} = this.state;
 
-			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="primary" onClick={this.fetchData}>Get the video</Button>}
-			{this.state.videoFile && <Video src={this.state.videoFile} />}
+		return <div className="container">
+			{!videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData} disabled={loading}>
+				Upload the video
+				{loading && <CircularProgress color="secondary" size={25} className={classes.spinner} />}
+			</Button>}
+			{videoFile && <Video src={videoFile} />}
+
+			<Notification />
 		</div>;
 	}
 }
