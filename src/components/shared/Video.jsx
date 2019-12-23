@@ -125,7 +125,9 @@ class Video extends React.Component {
 		});
 	}
 
-	playpause = () => {
+	playpause = (event) => {
+		if (event.type === 'keyup' && event.which !== 32) return;
+
 		this.videoElement.paused ? this.videoElement.play() : this.videoElement.pause();
 
 		this.setState({
@@ -144,7 +146,7 @@ class Video extends React.Component {
 		let link = document.createElement('a');
 		link.href = this.videoElement.src;
 		link.setAttribute('target', 'blank');
-		link.setAttribute('download', this.videoElement.src);
+		link.setAttribute('download', this.videoElement.src.split(/(\\|\/)/g).pop());
 		link.click();
 	}
 
@@ -179,7 +181,9 @@ class Video extends React.Component {
 				onLoadedData={this.loadedData}
 				onProgress={this.progress}
 				onTimeUpdate={this.timeupdate}
-				onKeyUp={() => this.videoElement ? this.videoElement.onkeyup : () => {}}
+				onKeyUp={this.playpause}
+				onClick={this.playpause}
+				tabIndex="0"
 			></video>
 
 			{isLoaded && controls &&
