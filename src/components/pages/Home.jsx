@@ -14,7 +14,8 @@ const styles = {
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
-		transform: 'translate(-50%, -50%)'
+		transform: 'translate(-50%, -50%)',
+		zIndex: 9
 	},
 	spinner: {
 		position: 'absolute',
@@ -31,14 +32,14 @@ class Home extends React.Component {
 		loading: false
 	}
 
-	componentDidMount() {
-
-	}
-
 	fetchData = () => {
 		this.setState({ loading: true });
 
-		api.getVideo().then(response => {
+		if (this.state.loading) return;
+
+		let method = Math.random() > 0.5 ? api.getVideo() : api.getVideo2();
+
+		method.then(response => {
 			this.setState({ videoFile: response.url });
 		}).catch(() => {
 			store.dispatch(addNotification({
@@ -57,15 +58,16 @@ class Home extends React.Component {
 		} = this.props;
 
 		const {
-			loading
+			loading,
+			videoFile,
 		} = this.state;
 
 		return <div className="container">
-			{!this.state.videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData} disabled={loading}>
+			{!videoFile && <Button className={classes.button} variant="contained" size="large" color="secondary" onClick={this.fetchData} disabled={loading}>
 				Upload the video
 				{loading && <CircularProgress color="secondary" size={25} className={classes.spinner} />}
 			</Button>}
-			{this.state.videoFile && <Video src={this.state.videoFile} />}
+			{videoFile && <Video src={videoFile} />}
 
 			<Notification />
 		</div>;

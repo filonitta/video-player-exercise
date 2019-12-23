@@ -20,6 +20,10 @@ class API extends REST {
 	getVideo() {
 		return this.getQuery(`get_video_url`);
 	}
+
+	getVideo2() {
+		return this.getQuery(`get_video_url.json`);
+	}
 }
 
 const api = new API(`${ENV.api}`);

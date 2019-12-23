@@ -7,12 +7,12 @@ export default class REST {
 	constructor(server, headers) {
 		this.server = server.trim();
 
-		let defailtHeaders = {
+		let defaultHeaders = {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'
 		};
 
-		this.headers = Object.assign(defailtHeaders, headers);
+		this.headers = Object.assign(defaultHeaders, headers);
 	}
 
 	setHeaders(header, value) {
