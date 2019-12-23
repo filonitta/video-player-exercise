@@ -8,6 +8,7 @@ import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
 
 import { Slider } from 'material-ui-slider';
 
@@ -91,7 +92,7 @@ const styles = theme => ({
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		padding: '5px 10px',
+		padding: '5px 0 5px 10px',
 	}
 });
 
@@ -121,7 +122,7 @@ class Video extends React.Component {
 
 	_format = format => time => {
 		let m = parseInt(parseInt(time / 60));
-		let s = parseInt(time -  60 * m);
+		let s = parseInt(time - 60 * m);
 
 		return format.replace('mm', m).replace('ss', s < 10 ? '0' + s : s);
 	}
@@ -180,10 +181,21 @@ class Video extends React.Component {
 
 	toggleVolume = () => {
 		let { volume } = this.state;
-		console.log('volume', volume);
 		volume = volume ? 0 : 1;
 		this.videoElement.volume = volume;
 		this.setState({ volume });
+	}
+
+	fullscreen = () => {
+		if (this.videoElement.requestFullscreen) {
+			this.videoElement.requestFullscreen();
+		} else if (this.videoElement.mozRequestFullScreen) { /* Firefox */
+			this.videoElement.mozRequestFullScreen();
+		} else if (this.videoElement.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+			this.videoElement.webkitRequestFullscreen();
+		} else if (this.videoElement.msRequestFullscreen) { /* IE/Edge */
+			this.videoElement.msRequestFullscreen();
+		}
 	}
 
 	render() {
@@ -237,6 +249,9 @@ class Video extends React.Component {
 							</IconButton>
 						</div>
 
+						<IconButton aria-label="play" onClick={this.fullscreen}>
+							<FullscreenIcon />
+						</IconButton>
 						<IconButton aria-label="play" onClick={this.download}>
 							<GetAppIcon />
 						</IconButton>
