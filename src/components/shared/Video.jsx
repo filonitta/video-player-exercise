@@ -29,6 +29,7 @@ const styles = theme => ({
 		height: 'auto',
 		verticalAlign: 'middle',
 		overflow: 'hidden',
+		// objectFit: 'fill',
 		'&:focus': {
 			outline: 'none'
 		}
@@ -111,6 +112,7 @@ class Video extends React.Component {
 	};
 
 	videoElement = null;
+	videoElementContainer = null;
 
 	state = {
 		isLoaded: false,
@@ -187,14 +189,14 @@ class Video extends React.Component {
 	}
 
 	fullscreen = () => {
-		if (this.videoElement.requestFullscreen) {
-			this.videoElement.requestFullscreen();
-		} else if (this.videoElement.mozRequestFullScreen) { /* Firefox */
-			this.videoElement.mozRequestFullScreen();
-		} else if (this.videoElement.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-			this.videoElement.webkitRequestFullscreen();
-		} else if (this.videoElement.msRequestFullscreen) { /* IE/Edge */
-			this.videoElement.msRequestFullscreen();
+		if (this.videoElementContainer.requestFullscreen) {
+			this.videoElementContainer.requestFullscreen();
+		} else if (this.videoElementContainer.mozRequestFullScreen) { /* Firefox */
+			this.videoElementContainer.mozRequestFullScreen();
+		} else if (this.videoElementContainer.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+			this.videoElementContainer.webkitRequestFullscreen();
+		} else if (this.videoElementContainer.msRequestFullscreen) { /* IE/Edge */
+			this.videoElementContainer.msRequestFullscreen();
 		}
 	}
 
@@ -213,7 +215,10 @@ class Video extends React.Component {
 			volume
 		} = this.state;
 
-		return <div className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}>
+		return <div
+					className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}
+					ref={el => this.videoElementContainer = el}
+				>
 			<video
 				hidden={!isLoaded}
 				{...this.props}
