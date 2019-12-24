@@ -17,6 +17,7 @@ const styles = theme => ({
 		position: 'relative',
 		boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.3)',
 		overflow: 'hidden',
+		background: '#EFEFEF',
 		'&.playing > $controls': {
 			bottom: '-100px'
 		},
@@ -29,7 +30,7 @@ const styles = theme => ({
 		height: 'auto',
 		verticalAlign: 'middle',
 		overflow: 'hidden',
-		// objectFit: 'fill',
+		objectFit: 'fill',
 		'&:focus': {
 			outline: 'none'
 		}
