@@ -37,9 +37,9 @@ class Home extends React.Component {
 
 		if (this.state.loading) return;
 
-		// let method = Math.random() > 0.5 ? api.getVideo() : api.getVideo2();
+		let method = Math.random() > 0.5 ? api.getVideo() : api.getVideo2();
 
-		api.getVideo().then(response => {
+		method.then(response => {
 			this.setState({ videoFile: response.url });
 		}).catch(() => {
 			store.dispatch(addNotification({
