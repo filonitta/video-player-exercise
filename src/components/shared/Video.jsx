@@ -6,12 +6,18 @@ import IconButton from '@material-ui/core/IconButton';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import VolumeOffIcon from '@material-ui/icons/VolumeOff';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+
+import { Slider } from 'material-ui-slider';
 
 const styles = theme => ({
 	root: {
 		position: 'relative',
 		boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.3)',
 		overflow: 'hidden',
+		background: '#EFEFEF',
 		'&.playing > $controls': {
 			bottom: '-100px'
 		},
@@ -24,6 +30,7 @@ const styles = theme => ({
 		height: 'auto',
 		verticalAlign: 'middle',
 		overflow: 'hidden',
+		objectFit: 'fill',
 		'&:focus': {
 			outline: 'none'
 		}
@@ -41,11 +48,13 @@ const styles = theme => ({
 		display: 'block',
 		height: '3px',
 		background: theme.palette.grey[600],
-		position: 'relative'
+		position: 'relative',
+		transition: 'height 0.3s',
+		cursor: 'pointer',
 	},
 	progressLine: {
 		display: 'block',
-		height: '3px',
+		height: '100%',
 		background: theme.palette.secondary.main,
 		transition: 'width 0.3s',
 		width: 0,
@@ -56,7 +65,7 @@ const styles = theme => ({
 	},
 	bufferedLine: {
 		display: 'block',
-		height: '3px',
+		height: '100%',
 		background: theme.palette.grey[500],
 		transition: 'width 0.3s',
 		width: 0,
@@ -76,7 +85,16 @@ const styles = theme => ({
 	timer: {
 		marginLeft: '5px',
 		fontSize: '12px',
-		// color: theme.palette.grey[700],
+	},
+	slider: {
+		margin: '0 10px'
+	},
+	volume: {
+		width: '200px',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		padding: '5px 0 5px 10px',
 	}
 });
 
@@ -95,17 +113,19 @@ class Video extends React.Component {
 	};
 
 	videoElement = null;
+	videoElementContainer = null;
 
 	state = {
 		isLoaded: false,
 		progress: 0,
 		buffered: 0,
-		isPlaying: false
+		isPlaying: false,
+		volume: 0
 	}
 
 	_format = format => time => {
 		let m = parseInt(parseInt(time / 60));
-		let s = parseInt(time -  60 * m);
+		let s = parseInt(time - 60 * m);
 
 		return format.replace('mm', m).replace('ss', s < 10 ? '0' + s : s);
 	}
@@ -114,7 +134,8 @@ class Video extends React.Component {
 		this.setState({
 			isLoaded: true,
 			totalTime: this._format('mm:ss')(this.videoElement.duration),
-			currentTime: this._format('mm:ss')(this.videoElement.currentTime)
+			currentTime: this._format('mm:ss')(this.videoElement.currentTime),
+			volume: this.videoElement.volume
 		});
 	}
 
@@ -156,6 +177,30 @@ class Video extends React.Component {
 		this.videoElement.currentTime = shift * this.videoElement.duration / width;
 	}
 
+	changeVolume = volume => {
+		this.videoElement.volume = volume;
+		this.setState({ volume });
+	}
+
+	toggleVolume = () => {
+		let { volume } = this.state;
+		volume = volume ? 0 : 1;
+		this.videoElement.volume = volume;
+		this.setState({ volume });
+	}
+
+	fullscreen = () => {
+		if (this.videoElementContainer.requestFullscreen) {
+			this.videoElementContainer.requestFullscreen();
+		} else if (this.videoElementContainer.mozRequestFullScreen) { /* Firefox */
+			this.videoElementContainer.mozRequestFullScreen();
+		} else if (this.videoElementContainer.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+			this.videoElementContainer.webkitRequestFullscreen();
+		} else if (this.videoElementContainer.msRequestFullscreen) { /* IE/Edge */
+			this.videoElementContainer.msRequestFullscreen();
+		}
+	}
+
 	render() {
 		let {
 			classes,
@@ -168,9 +213,13 @@ class Video extends React.Component {
 			currentTime,
 			progress,
 			buffered,
+			volume
 		} = this.state;
 
-		return <div className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}>
+		return <div
+					className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}
+					ref={el => this.videoElementContainer = el}
+				>
 			<video
 				hidden={!isLoaded}
 				{...this.props}
@@ -198,7 +247,17 @@ class Video extends React.Component {
 							{currentTime} / {totalTime}
 						</div>
 					</div>
-					<div>
+					<div className={classes.flexContainer}>
+						<div className={classes.volume}>
+							<Slider min="0" max="1" decimals="100" value={volume} color="#f50057" onChange={this.changeVolume} className={classes.slider} />
+							<IconButton aria-label="play" onClick={this.toggleVolume}>
+								{volume ? <VolumeUpIcon /> : <VolumeOffIcon />}
+							</IconButton>
+						</div>
+
+						<IconButton aria-label="play" onClick={this.fullscreen}>
+							<FullscreenIcon />
+						</IconButton>
 						<IconButton aria-label="play" onClick={this.download}>
 							<GetAppIcon />
 						</IconButton>
