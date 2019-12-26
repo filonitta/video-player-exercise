@@ -161,6 +161,9 @@ class Video extends React.Component {
 
 		let loadedPercentage = 100 * this.videoElement.buffered.end(0) / this.videoElement.duration;
 		this.setState({ buffered: loadedPercentage});
+
+		// let isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+		// console.log('isFullScreen', isFullScreen);
 	}
 
 	download = () => {
@@ -190,15 +193,10 @@ class Video extends React.Component {
 	}
 
 	fullscreen = () => {
-		if (this.videoElementContainer.requestFullscreen) {
-			this.videoElementContainer.requestFullscreen();
-		} else if (this.videoElementContainer.mozRequestFullScreen) { /* Firefox */
-			this.videoElementContainer.mozRequestFullScreen();
-		} else if (this.videoElementContainer.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-			this.videoElementContainer.webkitRequestFullscreen();
-		} else if (this.videoElementContainer.msRequestFullscreen) { /* IE/Edge */
-			this.videoElementContainer.msRequestFullscreen();
-		}
+		let element = this.videoElementContainer,
+			fullscreen = element.requestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+
+		fullscreen.call(element);
 	}
 
 	render() {
