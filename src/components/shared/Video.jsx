@@ -137,6 +137,8 @@ class Video extends React.Component {
 			currentTime: this._format('mm:ss')(this.videoElement.currentTime),
 			volume: this.videoElement.volume
 		});
+
+		this.videoElement.focus();
 	}
 
 	timeupdate = () => {
@@ -146,8 +148,8 @@ class Video extends React.Component {
 		});
 	}
 
-	playpause = (event) => {
-		if (event.type === 'keyup' && event.which !== 32) return;
+	playpause = () => {
+		// if (event.type === 'keyup' && event.which !== 32) return;
 
 		this.videoElement.paused ? this.videoElement.play() : this.videoElement.pause();
 
@@ -199,6 +201,25 @@ class Video extends React.Component {
 		fullscreen.call(element);
 	}
 
+	keydown = event => {
+		switch (event.which) {
+			case 32: this.playpause(); break; // space
+			case 38: {
+				let volume = this.videoElement.volume + 0.1;
+				if (volume > 1) volume = 1;
+				this.changeVolume(volume); break; // arrow up
+			}
+			case 40: {
+				let volume = this.videoElement.volume - 0.1;
+				if (volume < 0) volume = 0;
+				this.changeVolume(volume); break; // arrow down
+			}
+			case 39: this.videoElement.currentTime += 10; break; // arrow right
+			case 37: this.videoElement.currentTime -= 10; break; // arrow left
+			case 70: this.fullscreen(); break; // key F
+		}
+	}
+
 	render() {
 		let {
 			classes,
@@ -228,7 +249,7 @@ class Video extends React.Component {
 				onLoadedData={this.loadedData}
 				onProgress={this.progress}
 				onTimeUpdate={this.timeupdate}
-				onKeyUp={this.playpause}
+				onKeyDown={this.keydown}
 				onClick={this.playpause}
 				tabIndex="0"
 			></video>
