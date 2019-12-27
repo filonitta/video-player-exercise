@@ -21,12 +21,12 @@ const styles = theme => ({
 		boxShadow: '0px 10px 30px 0px rgba(0,0,0,0.3)',
 		overflow: 'hidden',
 		background: '#EFEFEF',
-		'&.playing > $controls': {
+		/*'&.playing > $controls': {
 			bottom: '-100px'
 		},
 		'&:hover > $controls': {
 			bottom: 0
-		},
+		},*/
 		'&:hover > $settings': {
 			opacity: 1
 		},
@@ -44,10 +44,13 @@ const styles = theme => ({
 	controls: {
 		width: '100%',
 		position: 'absolute',
-		bottom: 0,
+		bottom: '-100px',
 		padding: '30px 10px 10px',
 		background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.7) 100%)',
-		transition: 'bottom 0.5s ease-out 0.5s'
+		transition: 'bottom 0.5s ease-out 0.5s',
+		'&.show': {
+			bottom: '0px'
+		}
 	},
 	progressBar: {
 		marginTop: '5px',
@@ -139,6 +142,7 @@ class Video extends React.Component {
 		buffered: 0,
 		isPlaying: false,
 		volume: 0,
+		showControls: true
 	}
 
 	_format = format => time => {
@@ -172,6 +176,8 @@ class Video extends React.Component {
 		this.setState({
 			isPlaying: !this.videoElement.paused
 		});
+
+		this.videoElement.paused ? this.toggleControls(true, 0) : this.toggleControls(false);
 	}
 
 	progress = () => {
@@ -236,6 +242,19 @@ class Video extends React.Component {
 		}
 	}
 
+	toggleControls = (flag = !this.state.showControls, delay = 1000) => event => {
+		console.log('event', event.type);
+		let { isPlaying } = this.state;
+
+		setTimeout(() => {
+			if (!isPlaying) {
+				flag = true;
+			}
+
+			this.setState({ showControls: flag });
+		}, delay);
+	}
+
 	render() {
 		let {
 			classes,
@@ -248,12 +267,17 @@ class Video extends React.Component {
 			currentTime,
 			progress,
 			buffered,
-			volume
+			volume,
+			showControls
 		} = this.state;
+
+		// console.log('showControls', showControls);
 
 		return <div
 					className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}
 					ref={el => this.videoElementContainer = el}
+					onMouseEnter={this.toggleControls(true, 0)}
+					onMouseLeave={this.toggleControls(false)}
 				>
 
 			<video
@@ -272,7 +296,7 @@ class Video extends React.Component {
 			></video>
 
 			{isLoaded &&
-			<div className={classes.settings}>
+			<div hidden className={classes.settings}>
 				<FabList size="small" icon={<SettingsIcon />} orientation="bottom">
 					<Fab size="small" color="default" onClick={this.fullscreen}><FullscreenIcon /></Fab>
 					<Fab size="small" color="default" onClick={this.download}><GetAppIcon /></Fab>
@@ -281,7 +305,7 @@ class Video extends React.Component {
 			}
 
 			{isLoaded && controls &&
-			<div className={classnames(classes.controls)}>
+			<div className={classnames(classes.controls, showControls ? 'show' : '')}>
 				<div className={classes.heading}>
 					<div className={classes.flexContainer}>
 						<IconButton aria-label="play" onClick={this.playpause} color="secondary">
