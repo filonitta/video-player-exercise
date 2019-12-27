@@ -9,8 +9,11 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
-
+import SettingsIcon from '@material-ui/icons/Settings';
 import { Slider } from 'material-ui-slider';
+import Fab from '@material-ui/core/Fab';
+
+import FabList from '@shared/FabList';
 
 const styles = theme => ({
 	root: {
@@ -23,7 +26,10 @@ const styles = theme => ({
 		},
 		'&:hover > $controls': {
 			bottom: 0
-		}
+		},
+		'&:hover > $settings': {
+			opacity: 1
+		},
 	},
 	video: {
 		maxWidth: '100%',
@@ -95,6 +101,18 @@ const styles = theme => ({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		padding: '5px 0 5px 10px',
+		transformOrigin: 'center right'
+	},
+	settings: {
+		position: 'absolute',
+		right: '10px',
+		top: '10px',
+		zIndex: 1,
+		opacity: 0,
+		transition: 'opacity 0.5s linear 0.3s',
+		'& button': {
+			boxShadow: 'none'
+		}
 	}
 });
 
@@ -120,7 +138,7 @@ class Video extends React.Component {
 		progress: 0,
 		buffered: 0,
 		isPlaying: false,
-		volume: 0
+		volume: 0,
 	}
 
 	_format = format => time => {
@@ -149,8 +167,6 @@ class Video extends React.Component {
 	}
 
 	playpause = () => {
-		// if (event.type === 'keyup' && event.which !== 32) return;
-
 		this.videoElement.paused ? this.videoElement.play() : this.videoElement.pause();
 
 		this.setState({
@@ -239,6 +255,7 @@ class Video extends React.Component {
 					className={classnames(classes.root, this.state.isPlaying ? 'playing' : '')}
 					ref={el => this.videoElementContainer = el}
 				>
+
 			<video
 				hidden={!isLoaded}
 				{...this.props}
@@ -253,6 +270,15 @@ class Video extends React.Component {
 				onClick={this.playpause}
 				tabIndex="0"
 			></video>
+
+			{isLoaded &&
+			<div className={classes.settings}>
+				<FabList size="small" icon={<SettingsIcon />} orientation="bottom">
+					<Fab size="small" color="default" onClick={this.fullscreen}><FullscreenIcon /></Fab>
+					<Fab size="small" color="default" onClick={this.download}><GetAppIcon /></Fab>
+				</FabList>
+			</div>
+			}
 
 			{isLoaded && controls &&
 			<div className={classnames(classes.controls)}>
@@ -274,10 +300,10 @@ class Video extends React.Component {
 							</IconButton>
 						</div>
 
-						<IconButton aria-label="play" onClick={this.fullscreen}>
+						<IconButton onClick={this.fullscreen}>
 							<FullscreenIcon />
 						</IconButton>
-						<IconButton aria-label="play" onClick={this.download}>
+						<IconButton onClick={this.download}>
 							<GetAppIcon />
 						</IconButton>
 					</div>
